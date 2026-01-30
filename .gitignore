@@ -1,0 +1,21 @@
+﻿## [Visual Studio / .NET]
+bin/
+obj/
+*.user
+*.userosscache
+*.sln.docstates
+
+## [用户特定文件]
+.vs/
+.idea/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## [构建输出]
+# 忽略所有发布文件夹
+publish/
+# 忽略你之前生成的 win-x64 单文件输出
+bin/Release/net8.0/win-x64/publish/

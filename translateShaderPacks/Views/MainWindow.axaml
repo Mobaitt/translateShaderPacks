@@ -1,0 +1,129 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:translateShaderPacks.ViewModels"
+        x:Class="translateShaderPacks.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Shader Pack Translator" 
+        Width="1200" Height="900"
+        Background="#1e1e1e"
+        TransparencyLevelHint="AcrylicBlur"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid>
+    <Grid RowDefinitions="Auto, Auto, *, Auto">
+        <Border Grid.Row="0" Background="#252526" Padding="15" BorderThickness="0,0,0,1" BorderBrush="#3e3e42">
+            <StackPanel Orientation="Horizontal" Spacing="15">
+                
+                <Button Content="⚙️ 设置" 
+                        Command="{Binding OpenSettingsCommand}" 
+                        CommandParameter="{Binding $parent[Window]}"
+                        Background="#3e3e42" Foreground="White"/>
+                
+                <Button Content="📂 选择 Zip" 
+                        Command="{Binding UploadZipCommand}" 
+                        CommandParameter="{Binding $parent[Window]}"
+                        Background="#3e3e42" Foreground="White"/>
+                
+                <Separator Background="#3e3e42" Width="1" Height="20"/>
+
+                <Button Content="✨ 自动翻译" 
+                        Command="{Binding AutoTranslateCommand}" 
+                        Background="#007acc" Foreground="White"/>
+                
+                <Button Content="🗑️ 清空列表" 
+                        Command="{Binding ClearAllCommand}" 
+                        CommandParameter="{Binding $parent[Window]}"
+                        Background="#ce4a4a" Foreground="White"/>
+                
+                <Button Content="💾 保存汉化包" 
+                        Command="{Binding SaveZipCommand}" 
+                        CommandParameter="{Binding $parent[Window]}"
+                        Background="#2d882d" Foreground="White"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1" Background="#2d2d2d" Padding="15,10">
+            <TextBox Text="{Binding SearchText}" 
+                     Watermark="🔍 输入 Key 或 英文词条进行搜索..." 
+                     VerticalContentAlignment="Center"/>
+        </Border>
+
+        <Grid Grid.Row="2" Margin="15,10">
+            <Grid RowDefinitions="Auto, *">
+                <Border Grid.Row="0" Background="#333333" CornerRadius="4,4,0,0" Padding="10,8">
+                    <Grid ColumnDefinitions="220, 1*, 1*">
+                        <TextBlock Grid.Column="0" Text="配置键 (Key)" FontWeight="Bold" Foreground="#858585"/>
+                        <TextBlock Grid.Column="1" Text="原文 (English)" FontWeight="Bold" Foreground="#858585" Margin="10,0"/>
+                        <TextBlock Grid.Column="2" Text="汉化 (Chinese)" FontWeight="Bold" Foreground="#858585"/>
+                    </Grid>
+                </Border>
+
+                <ListBox Grid.Row="1" 
+                         ItemsSource="{Binding FilteredList}" 
+                         Background="#252526"
+                         BorderThickness="1,0,1,1"
+                         BorderBrush="#333333">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderThickness="0,0,0,1" BorderBrush="#333333" Padding="5">
+                                <Grid ColumnDefinitions="220, 1*, 1*">
+                                    <SelectableTextBlock Grid.Column="0" Text="{Binding Key}" 
+                                                         FontSize="11" Foreground="#569cd6" 
+                                                         VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    
+                                    <TextBlock Grid.Column="1" Text="{Binding EnglishValue}" 
+                                               Margin="10,0" VerticalAlignment="Center" 
+                                               TextWrapping="Wrap" Foreground="#d4d4d4"/>
+                                    
+                                    <Grid Grid.Column="2">
+                                        <TextBox Text="{Binding ChineseValue, Mode=TwoWay}" 
+                                                 IsEnabled="{Binding !IsTranslating}"
+                                                 FontSize="12"/>
+                                        <ProgressBar VerticalAlignment="Bottom" Height="2" 
+                                                     IsIndeterminate="True" 
+                                                     IsVisible="{Binding IsTranslating}"/>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Grid>
+
+        <Border Grid.Row="3" Background="#007acc" Height="25" Padding="10,0">
+            <Grid ColumnDefinitions="*, Auto">
+                <TextBlock Text="{Binding ZipPath, FallbackValue='请先加载 Zip 文件'}" 
+                           FontSize="11" Foreground="White" VerticalAlignment="Center"/>
+                
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="Ready" FontSize="11" Foreground="White" VerticalAlignment="Center" IsVisible="{Binding !IsBusy}"/>
+                    <ProgressBar IsIndeterminate="True" Width="80" Height="15" 
+                                 IsVisible="{Binding IsBusy}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+        <Border IsVisible="{Binding IsToastVisible}"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Center"
+                Margin="0,50,0,0"
+                Padding="20,10"
+                Background="{Binding ToastBackground}"
+                CornerRadius="20"
+                ZIndex="100"
+                BoxShadow="0 4 10 0 #40000000">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="{Binding ToastMessage}" 
+                           Foreground="White" 
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <ProgressBar VerticalAlignment="Top" 
+                     IsIndeterminate="True" 
+                     IsVisible="{Binding IsBusy}" 
+                     Height="2"/>
+    </Grid>
+</Window>

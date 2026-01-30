@@ -1,0 +1,19 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="translateShaderPacks.Views.SettingsWindow"
+        Title="高级设备" Width="400" Height="400"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False">
+    <StackPanel Margin="20" Spacing="10">
+        <TextBlock Text="AI 接口配置" FontWeight="Bold"/>
+        <TextBox Name="ApiKeyBox" Watermark="API Key" PasswordChar="*"/>
+        <TextBox Name="BaseUrlBox" Watermark="API 地址 (如 https://api.deepseek.com)"/>
+        <TextBox Name="ModelBox" Watermark="模型名称 (如 deepseek-chat)"/>
+        
+        <Separator Margin="0,5"/>
+        <TextBlock Text="路径配置" FontWeight="Bold"/>
+        <TextBox Name="SourceBox" Watermark="读取路径 (en_US.lang)"/>
+        <TextBox Name="TargetBox" Watermark="保存路径 (zh_CN.lang)"/>
+        <Button Content="确定" HorizontalAlignment="Right" HorizontalContentAlignment="Center" Click="OnConfirmClick" Width="80"/>
+    </StackPanel>
+</Window>

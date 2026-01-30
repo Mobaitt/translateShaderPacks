@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AvaloniaProject">
+    <option name="projectPerEditor">
+      <map>
+        <entry key="translateShaderPacks/App.axaml" value="translateShaderPacks/translateShaderPacks.csproj" />
+        <entry key="translateShaderPacks/Views/MainWindow.axaml" value="translateShaderPacks/translateShaderPacks.csproj" />
+        <entry key="translateShaderPacks/Views/MessageBoxWindow.axaml" value="translateShaderPacks/translateShaderPacks.csproj" />
+        <entry key="translateShaderPacks/Views/SettingsWindow.axaml" value="translateShaderPacks/translateShaderPacks.csproj" />
+        <entry key="translateShaderPacks/Views/Window1.axaml" value="translateShaderPacks/translateShaderPacks.csproj" />
+      </map>
+    </option>
+  </component>
+</project>
