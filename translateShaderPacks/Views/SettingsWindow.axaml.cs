@@ -1,7 +1,5 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using translateShaderPacks.Services;
 
 namespace translateShaderPacks.Views;
@@ -26,10 +24,11 @@ public partial class SettingsWindow : Window
         this.FindControl<TextBox>("ModelBox")!.Text = _config.ModelName;
         this.FindControl<TextBox>("SourceBox")!.Text = _config.SourcePath;
         this.FindControl<TextBox>("TargetBox")!.Text = _config.TargetPath;
+        this.FindControl<NumericUpDown>("TranslateLinesBox")!.Value = _config.TranslateLines;
     }
     
 
-    private void OnConfirmClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void OnConfirmClick(object? sender, RoutedEventArgs e)
     {
         // 1. 从 UI 获取最新值并更新到对象
         _config.ApiKey = this.FindControl<TextBox>("ApiKeyBox")?.Text ?? "";
@@ -37,6 +36,7 @@ public partial class SettingsWindow : Window
         _config.ModelName = this.FindControl<TextBox>("ModelBox")?.Text ?? "deepseek-chat";
         _config.SourcePath = this.FindControl<TextBox>("SourceBox")?.Text ?? "shaders/lang/en_US.lang";
         _config.TargetPath = this.FindControl<TextBox>("TargetBox")?.Text ?? "shaders/lang/zh_CN.lang";
+        _config.TranslateLines = (int)(this.FindControl<NumericUpDown>("TranslateLinesBox")?.Value ?? 10);
 
         // 2. 调用服务保存到 config.json
         ConfigService.Save(_config);

@@ -10,7 +10,11 @@ public class AppConfig
     public string BaseUrl { get; set; } = "https://api.deepseek.com";
     public string ModelName { get; set; } = "deepseek-chat";
     public string SourcePath { get; set; } = "shaders/lang/en_US.lang";
+
     public string TargetPath { get; set; } = "shaders/lang/zh_CN.lang";
+
+    // 翻译行数
+    public int TranslateLines { get; set; } = 10;
 }
 
 public static class ConfigService
@@ -25,7 +29,10 @@ public static class ConfigService
             var json = File.ReadAllText(ConfigPath);
             return JsonSerializer.Deserialize<AppConfig>(json) ?? new AppConfig();
         }
-        catch { return new AppConfig(); }
+        catch
+        {
+            return new AppConfig();
+        }
     }
 
     public static void Save(AppConfig config)

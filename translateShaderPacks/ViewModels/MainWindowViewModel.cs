@@ -8,10 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using translateShaderPacks.Models;
 using translateShaderPacks.Services;
+using translateShaderPacks.Views;
 
 namespace translateShaderPacks.ViewModels;
 
@@ -116,10 +118,7 @@ public partial class MainWindowViewModel : ViewModelBase
                                       (x.Key.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                                        x.EnglishValue.Contains(SearchText, StringComparison.OrdinalIgnoreCase)));
 
-        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-        {
-            FilteredList = new ObservableCollection<LangEntry>(query);
-        });
+        Dispatcher.UIThread.Post(() => { FilteredList = new ObservableCollection<LangEntry>(query); });
     }
 
     [RelayCommand]
@@ -131,7 +130,7 @@ public partial class MainWindowViewModel : ViewModelBase
         IsBusy = true;
 
         // 每次翻译 10 条，避免超过模型上下文限制
-        int batchSize = 10;
+        int batchSize = _config.TranslateLines;
         for (int i = 0; i < targets.Count; i += batchSize)
         {
             var currentBatch = targets.Skip(i).Take(batchSize).ToList();
@@ -147,6 +146,8 @@ public partial class MainWindowViewModel : ViewModelBase
                 currentBatch[j].IsTranslating = false;
             }
         }
+
+        _ = ShowToast($"✅ 已完成 {targets.Count} 条翻译");
 
         IsBusy = false;
     }
@@ -171,6 +172,8 @@ public partial class MainWindowViewModel : ViewModelBase
                 {
                     writer.WriteLine(item.IsTranslatable ? $"{item.Key}={item.ChineseValue}" : item.RawLine);
                 }
+                writer.Flush();
+                _ = ShowToast($"保存成功");
             });
 
             // 保存成功弹窗
@@ -193,13 +196,14 @@ public partial class MainWindowViewModel : ViewModelBase
         FilteredList.Clear();
         ZipPath = string.Empty;
         SearchText = string.Empty;
+        _ = ShowToast("清空成功");
     }
 
 
     [RelayCommand]
     private async Task OpenSettingsAsync(Window owner)
     {
-        var dialog = new Views.SettingsWindow(_config); // 传入当前配置
+        var dialog = new SettingsWindow(_config); // 传入当前配置
         if (await dialog.ShowDialog<bool>(owner))
         {
             _config = ConfigService.Load(); // 重新加载保存后的配置

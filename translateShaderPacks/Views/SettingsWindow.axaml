@@ -1,19 +1,28 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="translateShaderPacks.Views.SettingsWindow"
-        Title="高级设备" Width="400" Height="400"
+        Title="高级设备" Width="400" Height="450"
         WindowStartupLocation="CenterOwner"
         CanResize="False">
     <StackPanel Margin="20" Spacing="10">
-        <TextBlock Text="AI 接口配置" FontWeight="Bold"/>
-        <TextBox Name="ApiKeyBox" Watermark="API Key" PasswordChar="*"/>
-        <TextBox Name="BaseUrlBox" Watermark="API 地址 (如 https://api.deepseek.com)"/>
-        <TextBox Name="ModelBox" Watermark="模型名称 (如 deepseek-chat)"/>
-        
-        <Separator Margin="0,5"/>
-        <TextBlock Text="路径配置" FontWeight="Bold"/>
-        <TextBox Name="SourceBox" Watermark="读取路径 (en_US.lang)"/>
-        <TextBox Name="TargetBox" Watermark="保存路径 (zh_CN.lang)"/>
-        <Button Content="确定" HorizontalAlignment="Right" HorizontalContentAlignment="Center" Click="OnConfirmClick" Width="80"/>
+        <TextBlock Text="AI 接口配置" FontWeight="Bold" />
+        <TextBox VerticalContentAlignment="Center" Name="ApiKeyBox" Watermark="API Key" PasswordChar="*" />
+        <TextBox VerticalContentAlignment="Center" Name="BaseUrlBox" Watermark="API 地址 (如 https://api.deepseek.com)" />
+        <TextBox VerticalContentAlignment="Center" Name="ModelBox" Watermark="模型名称 (如 deepseek-chat)" />
+
+        <Separator Margin="0,5" />
+        <TextBlock Text="路径配置" FontWeight="Bold" />
+        <TextBox VerticalContentAlignment="Center" Name="SourceBox" Watermark="读取路径 (en_US.lang)" />
+        <TextBox VerticalContentAlignment="Center" Name="TargetBox" Watermark="保存路径 (zh_CN.lang)" />
+
+        <TextBlock  Text="翻译配置" FontWeight="Bold" />
+        <NumericUpDown VerticalContentAlignment="Center" Name="TranslateLinesBox" 
+                       Watermark="翻译行数 (如 1000)"
+                       Minimum="1"
+                       Maximum="999999"
+                       Increment="1"
+                       FormatString="0" />
+        <Button Content="确定" HorizontalAlignment="Right" HorizontalContentAlignment="Center" Click="OnConfirmClick"
+                Width="80" />
     </StackPanel>
 </Window>
