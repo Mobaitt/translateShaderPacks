@@ -7,7 +7,15 @@
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <ApplicationIcon>Assets\avalonia-logo.ico</ApplicationIcon>
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        
         <PublishAot>true</PublishAot>
+        
+        <OptimizationPreference>Size</OptimizationPreference>
+        <StackTraceSupport>false</StackTraceSupport>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <EventSourceSupport>false</EventSourceSupport>
+        <UseSystemResourceKeys>true</UseSystemResourceKeys>
+        <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
     </PropertyGroup>
 
     <ItemGroup>
