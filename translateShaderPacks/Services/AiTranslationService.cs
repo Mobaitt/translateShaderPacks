@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using OpenAI;
 using OpenAI.Managers;
 using OpenAI.ObjectModels.RequestModels;
+using translateShaderPacks.Models;
 
 namespace translateShaderPacks.Services;
 

@@ -1,6 +1,4 @@
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-using translateShaderPacks.ViewModels;
 
 namespace translateShaderPacks.Views;
 

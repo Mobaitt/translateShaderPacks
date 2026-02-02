@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -26,7 +27,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string? _zipPath;
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private string _searchText = string.Empty;
-    private AppConfig _config = ConfigService.Load();
+    [ObservableProperty] private AppConfig _config = ConfigService.Load();
     private readonly AiTranslationService _aiService = new();
 
     // 原始完整数据源
@@ -40,7 +41,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
 
     // 封装一个自动消失的提示方法
-    private async Task ShowToast(string message, bool isError = false)
+    public async Task ShowToast(string message, bool isError = false)
     {
         ToastMessage = message;
         ToastBackground = isError ? "#cc2222" : "#2d882d"; // 错误用红色，成功用绿色
@@ -68,12 +69,13 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             ZipPath = files[0].Path.LocalPath;
 
-            await Task.Run(() => LoadLangFile(ZipPath, _config.SourcePath));
+            await Task.Run(() => LoadLangFile(ZipPath, Config.SourcePath));
             // 加载成功弹窗
             _ = ShowToast($"📂 已成功加载 {_fullContent.Count} 条数据"); // 使用 _ = 异步触发不阻塞
         }
         catch (Exception ex)
         {
+            Debug.WriteLine(ex.Message);
             _ = ShowToast("❌ 加载失败，请检查路径", true);
         }
         finally
@@ -130,7 +132,7 @@ public partial class MainWindowViewModel : ViewModelBase
         IsBusy = true;
 
         // 每次翻译 10 条，避免超过模型上下文限制
-        int batchSize = _config.TranslateLines;
+        int batchSize = Config.TranslateLines;
         for (int i = 0; i < targets.Count; i += batchSize)
         {
             var currentBatch = targets.Skip(i).Take(batchSize).ToList();
@@ -138,13 +140,14 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 t.IsTranslating = true;
                 return t.EnglishValue;
-            }).ToList(), _config);
+            }).ToList(), Config);
 
-            for (int j = 0; j < results.Count && j < currentBatch.Count; j++)
-            {
-                currentBatch[j].ChineseValue = results[j];
-                currentBatch[j].IsTranslating = false;
-            }
+            if (results != null)
+                for (int j = 0; j < results.Count && j < currentBatch.Count; j++)
+                {
+                    currentBatch[j].ChineseValue = results[j];
+                    currentBatch[j].IsTranslating = false;
+                }
         }
 
         _ = ShowToast($"✅ 已完成 {targets.Count} 条翻译");
@@ -163,7 +166,7 @@ public partial class MainWindowViewModel : ViewModelBase
             await Task.Run(() =>
             {
                 using var archive = ZipFile.Open(ZipPath, ZipArchiveMode.Update);
-                var targetPath = _config.TargetPath;
+                var targetPath = Config.TargetPath;
                 archive.GetEntry(targetPath)?.Delete();
 
                 var newEntry = archive.CreateEntry(targetPath);
@@ -172,6 +175,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 {
                     writer.WriteLine(item.IsTranslatable ? $"{item.Key}={item.ChineseValue}" : item.RawLine);
                 }
+
                 writer.Flush();
                 _ = ShowToast($"保存成功");
             });
@@ -180,6 +184,8 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
+            Debug.WriteLine(ex.Message);
+            _ = ShowToast("保存失败", true);
         }
         finally
         {
@@ -203,10 +209,14 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task OpenSettingsAsync(Window owner)
     {
-        var dialog = new SettingsWindow(_config); // 传入当前配置
+        var dialog = new SettingsWindow
+        {
+            DataContext = new SettingsWindowViewModel()
+        }; // 传入当前配置
         if (await dialog.ShowDialog<bool>(owner))
         {
-            _config = ConfigService.Load(); // 重新加载保存后的配置
+            _ = ShowToast("设置保存成功");
+            Config = ConfigService.Load(); // 重新加载保存后的配置
         }
     }
 }
