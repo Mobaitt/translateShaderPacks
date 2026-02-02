@@ -3,7 +3,7 @@
         xmlns:vm="clr-namespace:translateShaderPacks.ViewModels"
         x:Class="translateShaderPacks.Views.SettingsWindow"
         x:DataType="vm:SettingsWindowViewModel"
-        Title="高级设备" Width="400" Height="450"
+        Title="高级设置" Width="400" Height="450"
         WindowStartupLocation="CenterOwner"
         CanResize="False">
     <StackPanel Margin="20" Spacing="10">

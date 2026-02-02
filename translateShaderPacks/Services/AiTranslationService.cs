@@ -1,58 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
-using OpenAI;
-using OpenAI.Managers;
-using OpenAI.ObjectModels.RequestModels;
+using translateShaderPacks.Context;
 using translateShaderPacks.Models;
 
 namespace translateShaderPacks.Services;
 
 public class AiTranslationService
 {
+    private static readonly HttpClient HttpClient = new();
+
     public async Task<List<string>?> TranslateBatchAsync(List<string> texts, AppConfig config)
     {
-        if (texts.Count == 0) return new();
+        if (texts.Count == 0) return [];
         if (string.IsNullOrWhiteSpace(config.ApiKey)) return texts;
 
-        // 1. 初始化 SDK (适配自定义 BaseUrl)
-        var sdk = new OpenAIService(new OpenAiOptions()
-        {
-            ApiKey = config.ApiKey,
-            BaseDomain = config.BaseUrl.TrimEnd('/') // 这里的 BaseDomain 会自动补全 /v1/chat/completions
-        });
-
-        // 2. 构建 Prompt
+        // 1. 准备请求数据
         var prompt = "你是一个 Minecraft 光影包专业翻译。请翻译以下词条，严格按行输出翻译结果，不要包含原文和解释：\n" +
                      string.Join("\n", texts);
 
-        // 3. 调用成熟的请求模型
-        var completionResult = await sdk.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest
-        {
-            Messages = new List<ChatMessage>
-            {
-                ChatMessage.FromUser(prompt)
-            },
-            Model = config.ModelName,
-            Temperature = 0.3f,
-            MaxTokens = 1000 // 批量翻译时建议设置大一点
-        });
+        var requestData = new ChatRequest(
+            config.ModelName,
+            [new Message("user", prompt)],
+            0.3f
+        );
 
-        // 4. 处理响应
-        if (completionResult.Successful)
+        // 2. 构建请求
+        var url = $"{config.BaseUrl.TrimEnd('/')}/v1/chat/completions";
+        var request = new HttpRequestMessage(HttpMethod.Post, url);
+        request.Headers.Add("Authorization", $"Bearer {config.ApiKey}");
+        
+        // 使用 AppJsonContext.Default.ChatRequest 避免反射
+        request.Content = JsonContent.Create(requestData, AppJsonContext.Default.ChatRequest);
+
+        try
         {
-            var content = completionResult.Choices.First().Message.Content;
+            var response = await HttpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode) return [];
+
+            // 3. 解析响应 (同样使用 Source Gen)
+            var result = await response.Content.ReadFromJsonAsync(AppJsonContext.Default.ChatResponse);
+            
+            var content = result?.choices.FirstOrDefault()?.message.content;
             return content?.Split('\n', StringSplitOptions.RemoveEmptyEntries)
                 .Select(s => s.Trim())
                 .ToList();
         }
-        else
+        catch (Exception ex)
         {
-            // SDK 提供了非常详细的错误信息
-            Debug.WriteLine($"AI 翻译失败: {completionResult.Error?.Message}");
-            return new List<string>();
+            Console.WriteLine($"AI 翻译出错: {ex.Message}");
+            return [];
         }
     }
 }
