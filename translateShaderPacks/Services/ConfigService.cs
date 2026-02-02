@@ -1,8 +1,16 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace translateShaderPacks.Services;
+
+[JsonSerializable(typeof(AppConfig))]
+public partial class AppConfigContext : JsonSerializerContext
+{
+    
+}
 
 public class AppConfig
 {
@@ -27,7 +35,7 @@ public static class ConfigService
         try
         {
             var json = File.ReadAllText(ConfigPath);
-            return JsonSerializer.Deserialize<AppConfig>(json) ?? new AppConfig();
+            return JsonSerializer.Deserialize<AppConfig>(json, AppConfigContext.Default.AppConfig) ?? new AppConfig();
         }
         catch
         {
@@ -35,9 +43,11 @@ public static class ConfigService
         }
     }
 
+    [RequiresDynamicCode( "JsonSerializer.Serialize")]
     public static void Save(AppConfig config)
     {
-        var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
+        
+        var json = JsonSerializer.Serialize(config,AppConfigContext.Default.AppConfig);
         File.WriteAllText(ConfigPath, json);
     }
 }
